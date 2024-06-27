@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Humidity Monitoring</title>
+  <!-- Include Chart.js library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- Emergency Button -->
+  <button onclick="triggerEmergency()">Emergency</button>
+
+  <h1>Humidity Monitoring</h1>
+  <canvas id="humidityChart" width="800" height="400"></canvas>
+
+  <script>
+    // Function to fetch data from the server and update the chart
+    function fetchDataAndUpdateChart() {
+      // Make an XMLHttpRequest to get data from the server
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          // Parse JSON data from the server
+          var jsonData = JSON.parse(this.responseText);
+
+          // Extract humidity values from the JSON data
+          var humidityData = jsonData.map(function(item) {
+            return item.humidity;
+          });
+
+          // Get the chart canvas element
+          var ctx = document.getElementById('humidityChart').getContext('2d');
+
+          // Create a line chart
+          var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: Array.from(Array(humidityData.length).keys()), // Labels for X-axis
+              datasets: [{
+                label: 'Humidity Data',
+                data: humidityData,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                fill: false
+              }]
+            },
+            options: {
+              scales: {
+                x: {
+                  type: 'linear',
+                  position: 'bottom'
+                },
+                y: {
+                  type: 'logarithmic', // Set y-axis scale to logarithmic
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+        }
+      };
+      xhr.open('GET', 'getHumidityData.php', true); // Update the script name to getHumidityData.php
+      xhr.send();
+    }
+
+    // Function to trigger emergency action (replace with actual action)
+    function triggerEmergency() {
+      alert('Emergency button clicked!'); // For demonstration, show an alert
+      // You can add your emergency action here
+    }
+
+    // Fetch and update chart on page load
+    window.onload = function() {
+      fetchDataAndUpdateChart();
+    };
+
+    // Refresh the chart every 5 seconds
+    setInterval(fetchDataAndUpdateChart, 5000);
+  </script>
+</body>
+</html>
